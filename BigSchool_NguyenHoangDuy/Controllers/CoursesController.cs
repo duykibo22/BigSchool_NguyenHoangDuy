@@ -3,6 +3,7 @@ using BigSchool_NguyenHoangDuy.ViewModels;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -32,7 +33,7 @@ namespace BigSchool_NguyenHoangDuy.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(CourseViewModel viewModel)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 viewModel.Categories = _dbContext.Categories.ToList();
                 return View("Create", viewModel);
@@ -48,6 +49,28 @@ namespace BigSchool_NguyenHoangDuy.Controllers
             _dbContext.SaveChanges();
             return RedirectToAction("Index", "Home");
         }
-        
+
+        public ActionResult Attending()
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                var userId = User.Identity.GetUserId();
+
+                List<Course> courses = context.Attendances
+                    .Where(p => p.AttendeeId == userId)
+                    .Select(p => p.Course)
+                    .Include(q => q.Lecturer)
+                    .Include(q => q.category)
+                    .ToList();
+                var viewModel = new CoursesViewModel
+                {
+                    UpcommingCourses = courses,
+                    ShowAction = User.Identity.IsAuthenticated
+                };
+
+                return View(viewModel);
+
+            }
+        }
     }
 }

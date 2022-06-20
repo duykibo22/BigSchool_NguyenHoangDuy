@@ -12,7 +12,7 @@ namespace BigSchool_NguyenHoangDuy.ViewModels
         [Required]
         public string Place { get; set; }
         [Required]
-        [FutureDate]
+        [FutureDate(ErrorMessage = "khong dung dinh dang")]
         public string Date { get; set; }
         [Required]
         [ValidTime]
